@@ -1,0 +1,65 @@
+# Папки для результатов сборки
+build/
+Build/
+cmake-build-*/
+
+# Исполняемые файлы
+*.exe
+
+# Объектные файлы и библиотеки
+*.o
+*.obj
+*.lib
+*.a
+*.so
+*.dylib
+*.dll
+
+# Файлы, сгенерированные CMake
+CMakeCache.txt
+cmake_install.cmake
+CMakeFiles/
+CPackConfig.cmake
+CPackSourceConfig.cmake
+_CPack_Packages/
+_CPack_PackageSource/
+DartConfiguration.tcl
+
+# Файлы, специфичные для Qt Creator (если они генерируются в корне проекта - на основе CMakeLists.txt.user)
+*.vcxproj.user
+*.vcxproj.filters
+*.user
+.vs/ # Файлы Visual Studio, если используется
+.qtc/ # Файлы проекта Qt Creator (из пути в CMakeLists.txt.user)
+
+# Временные файлы
+*~
+*.swp
+*.swo
+.*.swp
+.*.swo
+
+# Файлы отладки (Windows)
+*.pdb
+
+# Другие возможные временные файлы или папки
+*.log
+*.ilk
+*.ncb
+*.suo
+*.idb
+*.ipch/
+*.sdf
+*.opensdf
+*.cache
+DerivedData/
+
+# Файлы, созданные операционной системой (например, .DS_Store на macOS)
+.DS_Store
+._*
+
+# Папка с скопированными DLL (если вы копируете DLL в выходную папку сборки)
+# Предполагается, что CMakeLists.txt копирует DLL в ту же папку, что и исполняемый файл.
+# Вам может понадобиться настроить это, исходя из вашей реальной конфигурации, если необходимо.
+# <project_name> обычно имя цели, в данном случае ShaftOCCT
+ShaftOCCT.exe # Если вы собираете Debug/Release папки, это может быть в build/Debug или build/Release
