@@ -194,26 +194,26 @@ int main() {
 
     // Радиус полуокружностей равен половине ширины паза
     Standard_Real radius4_semi = width4 / 2.0; // 4 мм
-    // Длина прямоугольной части: общая длина паза минус диаметр двух полуокружностей
-    Standard_Real rect_length4 = length4_paz - 2 * radius4_semi;
+    // Длина прямоугольной части
+    Standard_Real rect_length4 = length4_paz;
 
     // Прямоугольная часть паза
-    gp_Pnt origin4_rect(-width4 / 2.0, yOffset4, startZ4 + radius4_semi);
-    TopoDS_Shape rect4 = BRepPrimAPI_MakeBox(origin4_rect, width4, depth4, rect_length4).Shape();
+    gp_Pnt origin4_rect(-width4 / 2.0, yOffset4, startZ4);
+    TopoDS_Shape rect4 = BRepPrimAPI_MakeBox(origin4_rect, width4, depth4, length4_paz).Shape();
 
-    // Полуокружность слева
-    gp_Ax2 axis4_left(gp_Pnt(-width4 / 2.0, yOffset4, startZ4 + radius4_semi), gp_Dir(0.0, 1.0, 0.0));
-    TopoDS_Shape semicircle4_left = BRepPrimAPI_MakeCylinder(axis4_left, radius4_semi, depth4, M_PI).Shape();
+    // Целая окружность слева
+    gp_Ax2 axis4_left(gp_Pnt(0, yOffset4, startZ4), gp_Dir(0.0, 1.0, 0.0));
+    TopoDS_Shape circle4_left = BRepPrimAPI_MakeCylinder(axis4_left, radius4_semi, depth4).Shape(); // Убрали M_PI для полной окружности
 
-    // Полуокружность справа
-    gp_Ax2 axis4_right(gp_Pnt(-width4 / 2.0, yOffset4, startZ4 + radius4_semi + rect_length4), gp_Dir(0.0, 1.0, 0.0));
-    TopoDS_Shape semicircle4_right = BRepPrimAPI_MakeCylinder(axis4_right, radius4_semi, depth4, M_PI).Shape();
+    // Целая окружность справа
+    gp_Ax2 axis4_right(gp_Pnt(0, yOffset4, startZ4 + length4_paz), gp_Dir(0.0, 1.0, 0.0));
+    TopoDS_Shape circle4_right = BRepPrimAPI_MakeCylinder(axis4_right, radius4_semi, depth4).Shape(); // Убрали M_PI для полной окружности
 
     // Объединяем части паза
-    BRepAlgoAPI_Fuse fuse_slot4_1(rect4, semicircle4_left);
-    if (!fuse_slot4_1.IsDone()) { std::cout << "Fuse slot 4 (left semicircle) failed" << std::endl; return 1; }
-    BRepAlgoAPI_Fuse fuse_slot4_2(fuse_slot4_1, semicircle4_right);
-    if (!fuse_slot4_2.IsDone()) { std::cout << "Fuse slot 4 (right semicircle) failed" << std::endl; return 1; }
+    BRepAlgoAPI_Fuse fuse_slot4_1(rect4, circle4_left);
+    if (!fuse_slot4_1.IsDone()) { std::cout << "Fuse slot 4 (left circle) failed" << std::endl; return 1; }
+    BRepAlgoAPI_Fuse fuse_slot4_2(fuse_slot4_1, circle4_right);
+    if (!fuse_slot4_2.IsDone()) { std::cout << "Fuse slot 4 (right circle) failed" << std::endl; return 1; }
     TopoDS_Shape paz4 = fuse_slot4_2.Shape();
     std::cout << "Slot 4 created" << std::endl;
 
@@ -232,19 +232,19 @@ int main() {
     // Радиус полуокружностей
     Standard_Real radius10_semi = width10 / 2.0; // 4 мм
     // Длина прямоугольной части
-    Standard_Real rect_length10 = length10_paz - 2 * radius10_semi;
+    Standard_Real rect_length10 = length10_paz;
 
     // Прямоугольная часть паза
     gp_Pnt origin10_rect(-width10 / 2.0, yOffset10, startZ10 + radius10_semi);
     TopoDS_Shape rect10 = BRepPrimAPI_MakeBox(origin10_rect, width10, depth10, rect_length10).Shape();
 
     // Полуокружность слева
-    gp_Ax2 axis10_left(gp_Pnt(-width10 / 2.0, yOffset10, startZ10 + radius10_semi), gp_Dir(0.0, 1.0, 0.0));
-    TopoDS_Shape semicircle10_left = BRepPrimAPI_MakeCylinder(axis10_left, radius10_semi, depth10, M_PI).Shape();
+    gp_Ax2 axis10_left(gp_Pnt(0, yOffset10, startZ10 + radius10_semi), gp_Dir(0.0, 1.0, 0.0));
+    TopoDS_Shape semicircle10_left = BRepPrimAPI_MakeCylinder(axis10_left, radius10_semi, depth10).Shape();
 
     // Полуокружность справа
-    gp_Ax2 axis10_right(gp_Pnt(-width10 / 2.0, yOffset10, startZ10 + radius10_semi + rect_length10), gp_Dir(0.0, 1.0, 0.0));
-    TopoDS_Shape semicircle10_right = BRepPrimAPI_MakeCylinder(axis10_right, radius10_semi, depth10, M_PI).Shape();
+    gp_Ax2 axis10_right(gp_Pnt(0, yOffset10, startZ10 + radius10_semi + rect_length10), gp_Dir(0.0, 1.0, 0.0));
+    TopoDS_Shape semicircle10_right = BRepPrimAPI_MakeCylinder(axis10_right, radius10_semi, depth10).Shape();
 
     // Объединяем части паза
     BRepAlgoAPI_Fuse fuse_slot10_1(rect10, semicircle10_left);
