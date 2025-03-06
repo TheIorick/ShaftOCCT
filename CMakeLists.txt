@@ -30,7 +30,7 @@ target_link_libraries(ShaftOCCT
     "E:/programs/occt/install/win64/vc14/libd/TKTopAlgo.lib"
     "E:/programs/occt/install/win64/vc14/libd/TKBRep.lib"
     "E:/programs/occt/install/win64/vc14/libd/TKFillet.lib"
-    "E:/programs/occt/install/win64/vc14/libd/TKG3d.lib"
+    "E:/programs/occt/install/win64/vc14/libd/TKG3d.lib"    
 )
 
 # Копирование DLL в выходную папку (оставьте как есть)
