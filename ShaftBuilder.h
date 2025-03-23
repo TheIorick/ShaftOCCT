@@ -255,6 +255,38 @@ public:
     }
 
     /**
+ * @brief Уменьшить диаметр цилиндра с указанным индексом
+ * @param index Индекс цилиндра в массиве сегментов
+ * @param tolerance Величина уменьшения диаметра (по умолчанию 0.3 мм)
+ * @return true если операция выполнена успешно, иначе false
+ */
+    bool reduceCylinderDiameter(size_t index, Standard_Real tolerance = 0.3) {
+        if (index >= segments.size()) {
+            std::cerr << "Error: Segment index " << index << " out of range" << std::endl;
+            return false;
+        }
+
+        CylinderSegment* cylinder = dynamic_cast<CylinderSegment*>(segments[index].get());
+        if (!cylinder) {
+            std::cerr << "Error: Segment at index " << index << " is not a cylinder" << std::endl;
+            return false;
+        }
+
+        // Получаем параметры текущего цилиндра
+        Standard_Real zStart = cylinder->getZStart();
+        Standard_Real length = cylinder->getLength();
+        Standard_Real diameter = cylinder->getRadius() * 2.0; // Преобразуем радиус в диаметр
+
+        // Создаем новый цилиндр с уменьшенным диаметром
+        segments[index] = std::make_unique<CylinderSegment>(zStart, length, diameter - tolerance);
+
+        std::cout << "Cylinder at index " << index << " reduced from diameter "
+                  << diameter << " to " << (diameter - tolerance) << std::endl;
+
+        return true;
+    }
+
+    /**
      * @brief Добавить паз
      * @param width Ширина паза
      * @param depth Глубина паза
@@ -418,5 +450,4 @@ private:
         }
     }
 };
-
 #endif // SHAFT_BUILDER_H
