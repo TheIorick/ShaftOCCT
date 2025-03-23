@@ -30,6 +30,9 @@
 #include <memory>
 #include <string>
 
+#include "ShaftProportions.h"
+
+
 /**
  * @class ShaftSegment
  * @brief Базовый класс для сегментов вала
@@ -351,7 +354,73 @@ public:
         std::cout << "Shaft exported to " << filename << std::endl;
         return true;
     }
+    /**
+ * @brief Построить вал на основе пропорций
+ * @param proportions Объект с пропорциями вала
+ */
+    void buildFromProportions(const ShaftProportions& proportions) {
+        // Сбрасываем текущую координату Z
+        currentZCoord = 0.0;
 
+        // Очищаем текущие сегменты и пазы
+        segments.clear();
+        slots.clear();
+
+        // Получаем количество сегментов
+        size_t segmentCount = proportions.getSegmentCount();
+
+        // Получаем длину фаски
+        double chamferLength = proportions.getChamferLength();
+        this->chamferLength = chamferLength;
+
+        std::cout << "Построение вала из " << segmentCount << " сегментов" << std::endl;
+        std::cout << "Длина фаски: " << chamferLength << " мм" << std::endl;
+
+        // Добавляем сегменты в соответствии с пропорциями
+        for (size_t i = 0; i < segmentCount; ++i) {
+            auto [type, length, diameter, diameterEnd, needsReduction] = proportions.getSegmentInfo(i);
+
+            // Учитываем фаски на первом и последнем сегментах
+            if (i == 0 || i == segmentCount - 1) {
+                length += chamferLength;
+            }
+
+            std::cout << "Добавление сегмента " << i << " (" << proportions.getSegmentName(i)
+                      << "): тип=" << type << ", длина=" << length << ", диаметр=" << diameter;
+
+            if (type == "cylinder") {
+                // Добавляем цилиндр с обычным диаметром
+                addCylinder(length, diameter);
+
+                // Если нужно уменьшение диаметра, применяем его к только что добавленному сегменту
+                if (needsReduction) {
+                    std::cout << " (уменьшен на 0.3 мм)" << std::endl;
+                    // Уменьшаем диаметр последнего добавленного цилиндра (индекс = segments.size() - 1)
+                    reduceCylinderDiameter(segments.size() - 1);
+                } else {
+                    std::cout << std::endl;
+                }
+            } else if (type == "cone") {
+                std::cout << ", конечный диаметр=" << diameterEnd << std::endl;
+                addCone(length, diameter, diameterEnd);
+            }
+        }
+
+        // Добавляем пазы на вал
+        size_t slotCount = proportions.getSlotCount();
+        for (size_t i = 0; i < slotCount; ++i) {
+            auto [width, depth, length, position, segmentIndex] = proportions.getSlotInfo(i);
+
+            // Получаем диаметр сегмента, на котором располагается паз
+            auto [_, __, diameter, ___, ____] = proportions.getSegmentInfo(segmentIndex);
+
+            std::cout << "Добавление паза " << i << " на сегменте " << segmentIndex
+                      << ": ширина=" << width << ", глубина=" << depth
+                      << ", длина=" << length << ", позиция=" << position << std::endl;
+
+            addSlot(width, depth, length, position, diameter/2.0);
+        }
+    }
 private:
     /**
      * @brief Добавить фаски на краях вала
@@ -449,5 +518,7 @@ private:
             }
         }
     }
+
+
 };
 #endif // SHAFT_BUILDER_H

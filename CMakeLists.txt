@@ -14,7 +14,8 @@ set(OCC_BIN_DIR "${OCC_INSTALL_DIR}/win64/vc14/bind")
 # Создание исполняемого файла
 add_executable(ShaftOCCT
     ShaftApplication.cpp
-    ShaftBuilder.h)
+    ShaftBuilder.h
+    ShaftProportions.h)
 
 
 # Подключение заголовков OpenCASCADE

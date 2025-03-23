@@ -4,6 +4,7 @@
  */
 
 #include "ShaftBuilder.h" // Подключаем класс ShaftBuilder
+#include "ShaftProportions.h"
 #include <iostream>
 
 /**
@@ -13,6 +14,7 @@
 class ShaftApplication {
 private:
     ShaftBuilder builder; // Строитель вала
+    ShaftProportions proportions; // Пропорции вала
 
 public:
     /**
@@ -21,7 +23,7 @@ public:
      * @param chamferAngle Угол фаски в градусах
      */
     ShaftApplication(Standard_Real chamferLength = 0.025, Standard_Real chamferAngle = 45.0)
-        : builder(chamferLength, chamferAngle) {}
+        : builder(chamferLength, chamferAngle), proportions(23.0)  {}
 
     /**
      * @brief Запустить построение вала
@@ -29,69 +31,18 @@ public:
      * @return 0 при успешном выполнении, иначе код ошибки
      */
     int run(const std::string& exportFilename = "shaft.step") {
-        std::cout << "Starting shaft construction..." << std::endl;
+        std::cout << "Начинаем построение вала на основе пропорций..." << std::endl;
 
         try {
-            // Получаем длину фаски для учета в первом и последнем сегментах
-            Standard_Real chamferLength = 0.025;
+            // Добавляем пользовательские диаметры (если есть)
+            // Например, если известен только диаметр первого цилиндра:
+            // proportions.setCustomDiameter(0, 23.0); // Первый цилиндр имеет диаметр 23.0
 
-            // Создаем модель вала, добавляя последовательно все сегменты
+            // Если нужно задать несколько диаметров:
+            // proportions.setCustomDiameter(7, 40.0); // Цилиндр 7 имеет диаметр 40.0
 
-            // Цилиндр 1 (с учетом фаски)
-            builder.addCylinder(18.0 + chamferLength, 23.0);
-
-            // Цилиндр 2
-            builder.addCylinder(15.0, 25.0);
-
-            // Цилиндр 3
-            builder.addCylinder(3.0, 22.7);
-
-            // Цилиндр 4
-            builder.addCylinder(27.0, 23.0);
-
-            // Цилиндр 5
-            builder.addCylinder(3.0, 22.7);
-
-            // Цилиндр 6
-            builder.addCylinder(14.0, 35.0);
-
-            // Конус
-            builder.addCone(5.0, 35.0, 40.0);
-
-            // Цилиндр 7
-            builder.addCylinder(40.0, 40.0);
-
-            // Цилиндр 8
-            builder.addCylinder(3.0, 22.7);
-
-            // Цилиндр 9
-            builder.addCylinder(59.0, 27.0);
-
-            // Цилиндр 10
-            builder.addCylinder(3.0, 23.0);
-
-            // Цилиндр 11
-            builder.addCylinder(21.0, 25.0);
-
-            // Цилиндр 12 (с учетом фаски)
-            builder.addCylinder(19.0 + chamferLength, 23.0);
-
-            // Применяем технологическое уменьшение диаметра для определенных цилиндров
-            // Уменьшаем диаметр цилиндра 3 (индекс 2)
-            builder.reduceCylinderDiameter(2, 0.3);
-
-            // Уменьшаем диаметр цилиндра 5 (индекс 4)
-            builder.reduceCylinderDiameter(4);
-
-            // Уменьшаем диаметр цилиндра 8 (индекс 8)
-            builder.reduceCylinderDiameter(8);
-
-            // Добавляем пазы на вал
-            // 1-й паз на 4-м цилиндре
-            builder.addSlot(8.0, 5.0, 10.0, 44.5, 23.0/2.0);
-
-            // 2-й паз на 10-м цилиндре
-            builder.addSlot(8.0, 4.0, 22.0, 133.0, 27.0/2.0);
+            // Строим вал на основе пропорций
+            builder.buildFromProportions(proportions);
 
             // Строим модель вала
             builder.build();
@@ -99,12 +50,27 @@ public:
             // Экспортируем модель в STEP-файл
             builder.exportToSTEP(exportFilename);
 
-            std::cout << "Shaft construction completed successfully." << std::endl;
+            std::cout << "Построение вала успешно завершено." << std::endl;
             return 0;
         }
         catch (const std::exception& e) {
-            std::cerr << "Error during shaft construction: " << e.what() << std::endl;
+            std::cerr << "Ошибка при построении вала: " << e.what() << std::endl;
             return 1;
+        }
+    }
+
+    /**
+ * @brief Задать диаметр для указанного сегмента
+ * @param segmentIndex Индекс сегмента (начиная с 0)
+ * @param diameter Диаметр сегмента
+ */
+    void setSegmentDiameter(int segmentIndex, double diameter) {
+        try {
+            proportions.setCustomDiameter(segmentIndex, diameter);
+            std::cout << "Установлен диаметр " << diameter << " мм для сегмента "
+                      << proportions.getSegmentName(segmentIndex) << std::endl;
+        } catch (const std::exception& e) {
+            std::cerr << "Ошибка при установке диаметра: " << e.what() << std::endl;
         }
     }
 };
@@ -118,7 +84,18 @@ int main() {
     Standard_Real chamferLength = 0.025;  // Длина фаски
     Standard_Real chamferAngle = 45.0;    // Угол фаски в градусах
 
-    // Создаем и запускаем приложение
+    // Создаем приложение
     ShaftApplication app(chamferLength, chamferAngle);
-    return app.run("shaft.step");
+
+    // Вариант 1: Используем стандартные пропорции с базовым диаметром 23.0 мм
+    // return app.run("shaft_standard.step");
+
+    // Вариант 2: Задаем пользовательский диаметр для одного сегмента
+    app.setSegmentDiameter(0, 35.0); // Увеличиваем диаметр
+    return app.run("shaft_custom_diameter.step");
+
+    // Вариант 3: Задаем пользовательские диаметры для нескольких сегментов
+    // app.setSegmentDiameter(1, 30.0); // Первый цилиндр
+    // app.setSegmentDiameter(7, 50.0); // Цилиндр 7
+    // return app.run("shaft_multi_custom.step");
 }
