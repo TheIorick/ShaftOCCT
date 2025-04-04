@@ -19,11 +19,20 @@ private:
 public:
     /**
      * @brief Конструктор приложения
+     * @param totalLength Общая длина вала
+     * @param cylinder4Diameter Диаметр 4-го цилиндра (с пазом)
+     * @param cylinder9Diameter Диаметр 9-го цилиндра (с пазом)
      * @param chamferLength Длина фаски
      * @param chamferAngle Угол фаски в градусах
      */
-    ShaftApplication(Standard_Real chamferLength = 0.025, Standard_Real chamferAngle = 45.0)
-        : builder(chamferLength, chamferAngle), proportions(23.0)  {}
+    ShaftApplication(
+        double totalLength = 230.0,
+        double cylinder4Diameter = 23.0,
+        double cylinder9Diameter = 27.0,
+        Standard_Real chamferLength = 0.025,
+        Standard_Real chamferAngle = 45.0)
+        : builder(chamferLength, chamferAngle),
+        proportions(totalLength, cylinder4Diameter, cylinder9Diameter) {}
 
     /**
      * @brief Запустить построение вала
@@ -31,16 +40,10 @@ public:
      * @return 0 при успешном выполнении, иначе код ошибки
      */
     int run(const std::string& exportFilename = "shaft.step") {
-        std::cout << "Начинаем построение вала на основе пропорций..." << std::endl;
+        std::cout << "Начинаем построение вала с общей длиной "
+                  << proportions.getTotalLength() << " мм..." << std::endl;
 
         try {
-            // Добавляем пользовательские диаметры (если есть)
-            // Например, если известен только диаметр первого цилиндра:
-            // proportions.setCustomDiameter(0, 23.0); // Первый цилиндр имеет диаметр 23.0
-
-            // Если нужно задать несколько диаметров:
-            // proportions.setCustomDiameter(7, 40.0); // Цилиндр 7 имеет диаметр 40.0
-
             // Строим вал на основе пропорций
             builder.buildFromProportions(proportions);
 
@@ -48,7 +51,7 @@ public:
             builder.build();
 
             // Экспортируем модель в STEP-файл
-            builder.exportToSTEP(exportFilename);
+            // builder.exportToSTEP(exportFilename);
 
             std::cout << "Построение вала успешно завершено." << std::endl;
             return 0;
@@ -58,6 +61,7 @@ public:
             return 1;
         }
     }
+
 
     /**
  * @brief Задать диаметр для указанного сегмента
@@ -73,6 +77,19 @@ public:
             std::cerr << "Ошибка при установке диаметра: " << e.what() << std::endl;
         }
     }
+
+    /**
+     * @brief Задать общую длину вала
+     * @param length Общая длина вала
+     */
+    void setTotalLength(double length) {
+        try {
+            proportions.setTotalLength(length);
+            std::cout << "Установлена общая длина вала: " << length << " мм" << std::endl;
+        } catch (const std::exception& e) {
+            std::cerr << "Ошибка при установке длины вала: " << e.what() << std::endl;
+        }
+    }
 };
 
 /**
@@ -80,22 +97,27 @@ public:
  * @return 0 при успешном выполнении, иначе код ошибки
  */
 int main() {
+
     // Общие параметры
+    double totalLength = 230.0;           // Общая длина вала
+    double cylinder4Diameter = 23.0;      // Диаметр 4-го цилиндра
+    double cylinder9Diameter = 27.0;      // Диаметр 9-го цилиндра
     Standard_Real chamferLength = 0.025;  // Длина фаски
     Standard_Real chamferAngle = 45.0;    // Угол фаски в градусах
 
     // Создаем приложение
     ShaftApplication app(chamferLength, chamferAngle);
 
-    // Вариант 1: Используем стандартные пропорции с базовым диаметром 23.0 мм
+    // Вариант 1: Используем стандартные параметры
     // return app.run("shaft_standard.step");
 
     // Вариант 2: Задаем пользовательский диаметр для одного сегмента
-    app.setSegmentDiameter(0, 35.0); // Увеличиваем диаметр
-    return app.run("shaft_custom_diameter.step");
+    // app.setSegmentDiameter(0, 35.0); // Увеличиваем диаметр первого цилиндра
+    // return app.run("shaft_custom_diameter.step");
 
-    // Вариант 3: Задаем пользовательские диаметры для нескольких сегментов
-    // app.setSegmentDiameter(1, 30.0); // Первый цилиндр
-    // app.setSegmentDiameter(7, 50.0); // Цилиндр 7
-    // return app.run("shaft_multi_custom.step");
+    // Вариант 3: Задаем пользовательскую длину и диаметры
+    app.setTotalLength(250.0); // Увеличиваем общую длину
+    app.setSegmentDiameter(3, 25.0); // Увеличиваем диаметр 4-го цилиндра
+    app.setSegmentDiameter(8, 30.0); // Увеличиваем диаметр 9-го цилиндра
+    return app.run("shaft_custom_dimensions.step");
 }
