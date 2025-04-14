@@ -102,27 +102,27 @@ public:
 
         // Цилиндр 1
         proportions.push_back(ShaftSegmentProportion(
-            "Цилиндр 1", "cylinder", 18.0 / 230.0, 23.0 / 23.0));
+            "Cylinder 1", "cylinder", 18.0 / 230.0, 23.0 / 23.0));
 
         // Цилиндр 2
         proportions.push_back(ShaftSegmentProportion(
-            "Цилиндр 2", "cylinder", 15.0 / 230.0, 25.0 / 23.0));
+            "Cylinder 2", "cylinder", 15.0 / 230.0, 25.0 / 23.0));
 
         // Цилиндр 3 (с уменьшенным диаметром)
         proportions.push_back(ShaftSegmentProportion(
-            "Цилиндр 3", "cylinder", 3.0 / 230.0, 23.0 / 23.0, 0.0, true));
+            "Cylinder 3", "cylinder", 3.0 / 230.0, 23.0 / 23.0, 0.0, true));
 
         // Цилиндр 4 (с пазом)
         proportions.push_back(ShaftSegmentProportion(
-            "Цилиндр 4", "cylinder", 27.0 / 230.0, 23.0 / 23.0));
+            "Cylinder 4", "cylinder", 27.0 / 230.0, 23.0 / 23.0));
 
         // Цилиндр 5 (с уменьшенным диаметром)
         proportions.push_back(ShaftSegmentProportion(
-            "Цилиндр 5", "cylinder", 3.0 / 230.0, 23.0 / 23.0, 0.0, true));
+            "Cylinder 5", "cylinder", 3.0 / 230.0, 23.0 / 23.0, 0.0, true));
 
         // Цилиндр 6
         proportions.push_back(ShaftSegmentProportion(
-            "Цилиндр 6", "cylinder", 14.0 / 230.0, 35.0 / 23.0));
+            "Cylinder 6", "cylinder", 14.0 / 230.0, 35.0 / 23.0));
 
         // Конус
         proportions.push_back(ShaftSegmentProportion(
@@ -130,27 +130,27 @@ public:
 
         // Цилиндр 7
         proportions.push_back(ShaftSegmentProportion(
-            "Цилиндр 7", "cylinder", 40.0 / 230.0, 40.0 / 23.0));
+            "Cylinder 7", "cylinder", 40.0 / 230.0, 40.0 / 23.0));
 
         // Цилиндр 8 (с уменьшенным диаметром)
         proportions.push_back(ShaftSegmentProportion(
-            "Цилиндр 8", "cylinder", 3.0 / 230.0, 23.0 / 23.0, 0.0, true));
+            "Cylinder 8", "cylinder", 3.0 / 230.0, 23.0 / 23.0, 0.0, true));
 
         // Цилиндр 9 (с пазом)
         proportions.push_back(ShaftSegmentProportion(
-            "Цилиндр 9", "cylinder", 59.0 / 230.0, 27.0 / 23.0));
+            "Cylinder 9", "cylinder", 59.0 / 230.0, 27.0 / 23.0));
 
         // Цилиндр 10
         proportions.push_back(ShaftSegmentProportion(
-            "Цилиндр 10", "cylinder", 3.0 / 230.0, 23.0 / 23.0));
+            "Cylinder 10", "cylinder", 3.0 / 230.0, 23.0 / 23.0));
 
         // Цилиндр 11
         proportions.push_back(ShaftSegmentProportion(
-            "Цилиндр 11", "cylinder", 21.0 / 230.0, 25.0 / 23.0));
+            "Cylinder 11", "cylinder", 21.0 / 230.0, 25.0 / 23.0));
 
         // Цилиндр 12
         proportions.push_back(ShaftSegmentProportion(
-            "Цилиндр 12", "cylinder", 19.0 / 230.0, 23.0 / 23.0));
+            "Cylinder 12", "cylinder", 19.0 / 230.0, 23.0 / 23.0));
 
         // Общая пропорция длины должна быть равна 1.0
         totalLengthRatio = 1.0;
@@ -163,11 +163,10 @@ public:
      */
     void setCustomDiameter(int segmentIndex, double diameter) {
         if (segmentIndex < 0 || segmentIndex >= proportions.size()) {
-            throw std::out_of_range("Индекс сегмента вне допустимого диапазона");
+            throw std::out_of_range("Segment index out of valid range");
         }
         if (diameter <= 0) {
-            throw std::invalid_argument("Диаметр должен быть положительным числом");
-        }
+            throw std::invalid_argument("Diameter must be a positive number");        }
 
         customDiameters[segmentIndex] = diameter;
 
@@ -193,7 +192,7 @@ public:
 
             // Проверяем, что диаметр не ноль
             if (cylinder4Diameter <= 0) {
-                std::cerr << "Ошибка: диаметр 4-го цилиндра не может быть нулевым или отрицательным" << std::endl;
+                std::cerr << "Error: 4th cylinder diameter cannot be zero or negative" << std::endl;
                 return;
             }
 
@@ -203,7 +202,7 @@ public:
 
             // Проверяем, что получившийся базовый диаметр не ноль
             if (newBaseDiameter <= 0) {
-                std::cerr << "Ошибка: вычисленный базовый диаметр не может быть нулевым или отрицательным" << std::endl;
+                std::cerr << "Error: Calculated base diameter cannot be zero or negative" << std::endl;
                 return;
             }
 
@@ -211,9 +210,9 @@ public:
             double scaleFactor = newBaseDiameter / baseDiameter;
             baseDiameter = newBaseDiameter;
 
-            std::cout << "Пересчет пропорций на основе диаметра 4-го цилиндра: "
-                      << "новый базовый диаметр = " << baseDiameter
-                      << ", коэффициент масштабирования = " << scaleFactor << std::endl;
+            std::cout << "Recalculating proportions based on the 4th cylinder diameter: "
+                      << "new base diameter = " << baseDiameter
+                      << ", scaling factor = " << scaleFactor << std::endl;
         }
         // Если 4-й цилиндр не задан, но задан 9-й цилиндр (индекс 8)
         else if (customDiameters.find(8) != customDiameters.end()) {
@@ -221,14 +220,14 @@ public:
 
             // Проверяем, что диаметр не ноль
             if (cylinder9Diameter <= 0) {
-                std::cerr << "Ошибка: диаметр 9-го цилиндра не может быть нулевым или отрицательным" << std::endl;
+                std::cerr << "Error: 9th cylinder diameter cannot be zero or negative" << std::endl;
                 return;
             }
 
             // Для 9-го цилиндра (индекс 8) отношение diameterRatio = 27.0 / 23.0
             double ratio = proportions[8].diameterRatio;
             if (ratio <= 0) {
-                std::cerr << "Ошибка: соотношение диаметра для 9-го цилиндра не может быть нулевым или отрицательным" << std::endl;
+                std::cerr << "Error: Diameter ratio for the 9th cylinder cannot be zero or negative" << std::endl;
                 return;
             }
 
@@ -237,7 +236,7 @@ public:
 
             // Проверяем, что получившийся базовый диаметр не ноль
             if (newBaseDiameter <= 0) {
-                std::cerr << "Ошибка: вычисленный базовый диаметр не может быть нулевым или отрицательным" << std::endl;
+                std::cerr << "Error: Calculated base diameter cannot be zero or negative" << std::endl;
                 return;
             }
 
@@ -245,9 +244,9 @@ public:
             double scaleFactor = newBaseDiameter / baseDiameter;
             baseDiameter = newBaseDiameter;
 
-            std::cout << "Пересчет пропорций на основе диаметра 9-го цилиндра: "
-                      << "новый базовый диаметр = " << baseDiameter
-                      << ", коэффициент масштабирования = " << scaleFactor << std::endl;
+            std::cout << "Recalculating proportions based on the 9th cylinder diameter: "
+                      << "new base diameter = " << baseDiameter
+                      << ", scaling factor = " << scaleFactor << std::endl;
         }
     }
 
@@ -274,7 +273,7 @@ public:
      */
     std::tuple<std::string, double, double, double, bool> getSegmentInfo(size_t index) const {
         if (index >= proportions.size()) {
-            throw std::out_of_range("Индекс сегмента вне допустимого диапазона");
+            throw std::out_of_range("Segment index out of valid range");
         }
 
         const auto& prop = proportions[index];
@@ -303,7 +302,7 @@ public:
      */
     std::string getSegmentName(size_t index) const {
         if (index >= proportions.size()) {
-            throw std::out_of_range("Индекс сегмента вне допустимого диапазона");
+            throw std::out_of_range("Segment index out of valid range");
         }
         return proportions[index].name;
     }
@@ -315,7 +314,7 @@ public:
      */
     double getSegmentDiameter(size_t index) const {
         if (index >= proportions.size()) {
-            throw std::out_of_range("Индекс сегмента вне допустимого диапазона");
+            throw std::out_of_range("Segment index out of valid range");
         }
 
         const auto& prop = proportions[index];
@@ -383,7 +382,7 @@ public:
      */
     std::tuple<double, double, double, double, int> getSlotInfo(size_t index) const {
         if (index >= slotProportions.size()) {
-            throw std::out_of_range("Индекс паза вне допустимого диапазона");
+            throw std::out_of_range("Slot index out of valid range");
         }
 
         const auto& slot = slotProportions[index];
@@ -413,7 +412,7 @@ public:
      */
     void setTotalLength(double length) {
         if (length <= 0) {
-            throw std::invalid_argument("Общая длина вала должна быть положительной");
+            throw std::invalid_argument("Total shaft length must be positive");
         }
         totalLength = length;
 

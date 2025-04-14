@@ -154,8 +154,14 @@ public:
      */
     Slot(Standard_Real width, Standard_Real depth, Standard_Real length,
          Standard_Real zStart, Standard_Real cylinderRadius)
-        : width(width), depth(depth), length(length),
-        zStart(zStart), yOffset(cylinderRadius - depth) {}
+        : width(width), depth(depth), length(length), zStart(zStart) {
+        if (depth > cylinderRadius) {
+            throw std::invalid_argument("Глубина паза (" + std::to_string(depth) +
+                                        ") превышает радиус цилиндра (" + std::to_string(cylinderRadius) + ")");
+        }
+        yOffset = cylinderRadius - depth;
+        std::cout << "Паз создан: радиус цилиндра=" << cylinderRadius << ", yOffset=" << yOffset << std::endl;
+    }
 
     /**
      * @brief Создать форму паза
@@ -180,12 +186,12 @@ public:
         // Объединяем части паза
         BRepAlgoAPI_Fuse fuseSlot1(rect, circleLeft);
         if (!fuseSlot1.IsDone()) {
-            throw std::runtime_error("Ошибка при объединении паза с левой окружностью");
+            throw std::runtime_error("Error fusing slot with left circle");
         }
 
         BRepAlgoAPI_Fuse fuseSlot2(fuseSlot1, circleRight);
         if (!fuseSlot2.IsDone()) {
-            throw std::runtime_error("Ошибка при объединении паза с правой окружностью");
+            throw std::runtime_error("Error fusing slot with right circle");
         }
 
         return fuseSlot2.Shape();
@@ -309,7 +315,7 @@ public:
      */
     void build() {
         if (segments.empty()) {
-            throw std::runtime_error("Нет сегментов для построения вала");
+            throw std::runtime_error("No segments to build the shaft");
         }
 
         // Создаем первый сегмент
@@ -319,7 +325,7 @@ public:
         for (size_t i = 1; i < segments.size(); ++i) {
             BRepAlgoAPI_Fuse fuse(finalShape, segments[i]->create());
             if (!fuse.IsDone()) {
-                throw std::runtime_error("Ошибка при объединении сегмента " + std::to_string(i));
+                throw std::runtime_error("Error fusing segment " + std::to_string(i));
             }
             finalShape = fuse.Shape();
         }
@@ -373,8 +379,8 @@ public:
         double chamferLength = proportions.getChamferLength();
         this->chamferLength = chamferLength;
 
-        std::cout << "Построение вала из " << segmentCount << " сегментов" << std::endl;
-        std::cout << "Длина фаски: " << chamferLength << " мм" << std::endl;
+        std::cout << "Building shaft from " << segmentCount << " segments" << std::endl;
+        std::cout << "Chamfer length: " << chamferLength << " mm" << std::endl;
 
         // Добавляем сегменты в соответствии с пропорциями
         for (size_t i = 0; i < segmentCount; ++i) {
@@ -385,8 +391,8 @@ public:
                 length += chamferLength;
             }
 
-            std::cout << "Добавление сегмента " << i << " (" << proportions.getSegmentName(i)
-                      << "): тип=" << type << ", длина=" << length << ", диаметр=" << diameter;
+            std::cout << "Adding segment " << i << " (" << proportions.getSegmentName(i)
+                      << "): type=" << type << ", length=" << length << ", diameter=" << diameter;
 
             if (type == "cylinder") {
                 // Добавляем цилиндр с обычным диаметром
@@ -394,14 +400,14 @@ public:
 
                 // Если нужно уменьшение диаметра, применяем его к только что добавленному сегменту
                 if (needsReduction) {
-                    std::cout << " (уменьшен на 0.3 мм)" << std::endl;
+                    std::cout << " (reduced by 0.3 mm)" << std::endl;
                     // Уменьшаем диаметр последнего добавленного цилиндра (индекс = segments.size() - 1)
                     reduceCylinderDiameter(segments.size() - 1);
                 } else {
                     std::cout << std::endl;
                 }
             } else if (type == "cone") {
-                std::cout << ", конечный диаметр=" << diameterEnd << std::endl;
+                std::cout << ", end diameter=" << diameterEnd << std::endl;
                 addCone(length, diameter, diameterEnd);
             }
         }
@@ -412,13 +418,15 @@ public:
             auto [width, depth, length, position, segmentIndex] = proportions.getSlotInfo(i);
 
             // Получаем диаметр сегмента, на котором располагается паз
-            auto [_, __, diameter, ___, ____] = proportions.getSegmentInfo(segmentIndex);
+            double segmentDiameter = proportions.getSegmentDiameter(segmentIndex);
 
-            std::cout << "Добавление паза " << i << " на сегменте " << segmentIndex
-                      << ": ширина=" << width << ", глубина=" << depth
-                      << ", длина=" << length << ", позиция=" << position << std::endl;
-
-            addSlot(width, depth, length, position, diameter/2.0);
+            std::cout << "Adding slot " << i << " on segment " << segmentIndex
+                      << ": width=" << width
+                      << ", depth=" << depth
+                      << ", length=" << length
+                      << ", position=" << position
+                      << ", cylinder diameter=" << segmentDiameter << std::endl;
+            addSlot(width, depth, length, position, segmentDiameter / 2.0);
         }
     }
 private:
@@ -508,7 +516,7 @@ private:
                 BRepAlgoAPI_Cut cut(finalShape, slotShape);
 
                 if (!cut.IsDone()) {
-                    throw std::runtime_error("Ошибка при вырезании паза " + std::to_string(i));
+                    throw std::runtime_error("Error cutting slot " + std::to_string(i));
                 }
 
                 finalShape = cut.Shape();

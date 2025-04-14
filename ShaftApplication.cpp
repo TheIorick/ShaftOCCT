@@ -13,9 +13,8 @@
  */
 class ShaftApplication {
 private:
-    ShaftBuilder builder; // Строитель вала
-    ShaftProportions proportions; // Пропорции вала
-
+    ShaftBuilder builder;
+    ShaftProportions proportions;
 public:
     /**
      * @brief Конструктор приложения
@@ -40,8 +39,8 @@ public:
      * @return 0 при успешном выполнении, иначе код ошибки
      */
     int run(const std::string& exportFilename = "shaft.step") {
-        std::cout << "Начинаем построение вала с общей длиной "
-                  << proportions.getTotalLength() << " мм..." << std::endl;
+        std::cout << "Starting shaft construction with total length "
+                  << proportions.getTotalLength() << " mm..." << std::endl;
 
         try {
             // Строим вал на основе пропорций
@@ -51,13 +50,13 @@ public:
             builder.build();
 
             // Экспортируем модель в STEP-файл
-            // builder.exportToSTEP(exportFilename);
+            builder.exportToSTEP(exportFilename);
 
-            std::cout << "Построение вала успешно завершено." << std::endl;
+            std::cout << "Shaft construction completed successfully." << std::endl;
             return 0;
         }
         catch (const std::exception& e) {
-            std::cerr << "Ошибка при построении вала: " << e.what() << std::endl;
+            std::cerr << "Error during shaft construction: " << e.what() << std::endl;
             return 1;
         }
     }
@@ -71,10 +70,10 @@ public:
     void setSegmentDiameter(int segmentIndex, double diameter) {
         try {
             proportions.setCustomDiameter(segmentIndex, diameter);
-            std::cout << "Установлен диаметр " << diameter << " мм для сегмента "
+            std::cout << "Diameter set to " << diameter << " mm for segment "
                       << proportions.getSegmentName(segmentIndex) << std::endl;
         } catch (const std::exception& e) {
-            std::cerr << "Ошибка при установке диаметра: " << e.what() << std::endl;
+            std::cerr << "Error setting diameter: " << e.what() << std::endl;
         }
     }
 
@@ -85,39 +84,77 @@ public:
     void setTotalLength(double length) {
         try {
             proportions.setTotalLength(length);
-            std::cout << "Установлена общая длина вала: " << length << " мм" << std::endl;
+            std::cout << "Total shaft length set to: " << length << " mm" << std::endl;
         } catch (const std::exception& e) {
-            std::cerr << "Ошибка при установке длины вала: " << e.what() << std::endl;
+            std::cerr << "Error setting shaft length: " << e.what() << std::endl;
         }
     }
 };
 
+
 /**
  * @brief Главная функция программы
+ * @param argc Количество аргументов командной строки
+ * @param argv Массив аргументов командной строки
  * @return 0 при успешном выполнении, иначе код ошибки
  */
-int main() {
+int main(int argc, char *argv[]) {
+    double totalLength = 230.0;
+    double cylinder4Diameter = 23.0;
+    double cylinder9Diameter = 27.0;
+    Standard_Real chamferLength = 0.025;
+    Standard_Real chamferAngle = 45.0;
 
-    // Общие параметры
-    double totalLength = 230.0;           // Общая длина вала
-    double cylinder4Diameter = 23.0;      // Диаметр 4-го цилиндра
-    double cylinder9Diameter = 27.0;      // Диаметр 9-го цилиндра
-    Standard_Real chamferLength = 0.025;  // Длина фаски
-    Standard_Real chamferAngle = 45.0;    // Угол фаски в градусах
+    if (argc == 1) {
+        std::cout << "Enter the total length of the shaft (mm): ";
+        std::cin >> totalLength;
+        if (totalLength <= 0) {
+            std::cerr << "Error: The shaft length must be a positive number" << std::endl;
+            return 1;
+        }
 
-    // Создаем приложение
-    ShaftApplication app(chamferLength, chamferAngle);
+        std::cout << "Enter the diameter of the 4th cylinder (mm): ";
+        std::cin >> cylinder4Diameter;
+        if (cylinder4Diameter <= 0) {
+            std::cerr << "Error: The diameter of the 4th cylinder must be a positive number" << std::endl;
+            return 1;
+        }
 
-    // Вариант 1: Используем стандартные параметры
-    // return app.run("shaft_standard.step");
+        std::cout << "Enter the diameter of the 9th cylinder (mm): ";
+        std::cin >> cylinder9Diameter;
+        if (cylinder9Diameter <= 0) {
+            std::cerr << "Error: The diameter of the 9th cylinder must be a positive number" << std::endl;
+            return 1;
+        }
+    } else {
+        if (argc > 1) {
+            totalLength = std::stod(argv[1]);
+            if (totalLength <= 0) {
+                std::cerr << "Error: The shaft length must be a positive number" << std::endl;
+                return 1;
+            }
+        }
+        if (argc > 2) {
+            cylinder4Diameter = std::stod(argv[2]);
+            if (cylinder4Diameter <= 0) {
+                std::cerr << "Error: The diameter of the 4th cylinder must be a positive number" << std::endl;
+                return 1;
+            }
+        }
+        if (argc > 3) {
+            cylinder9Diameter = std::stod(argv[3]);
+            if (cylinder9Diameter <= 0) {
+                std::cerr << "Error: The diameter of the 9th cylinder must be a positive number" << std::endl;
+                return 1;
+            }
+        }
+    }
 
-    // Вариант 2: Задаем пользовательский диаметр для одного сегмента
-    // app.setSegmentDiameter(0, 35.0); // Увеличиваем диаметр первого цилиндра
-    // return app.run("shaft_custom_diameter.step");
+    std::cout << "Shaft parameters:" << std::endl;
+    std::cout << "Total length: " << totalLength << " mm" << std::endl;
+    std::cout << "Diameter of the 4th cylinder: " << cylinder4Diameter << " mm" << std::endl;
+    std::cout << "Diameter of the 9th cylinder: " << cylinder9Diameter << " mm" << std::endl;
 
-    // Вариант 3: Задаем пользовательскую длину и диаметры
-    app.setTotalLength(250.0); // Увеличиваем общую длину
-    app.setSegmentDiameter(3, 25.0); // Увеличиваем диаметр 4-го цилиндра
-    app.setSegmentDiameter(8, 30.0); // Увеличиваем диаметр 9-го цилиндра
+    ShaftApplication app(totalLength, cylinder4Diameter, cylinder9Diameter, chamferLength, chamferAngle);
     return app.run("shaft_custom_dimensions.step");
 }
