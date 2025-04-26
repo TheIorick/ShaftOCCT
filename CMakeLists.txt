@@ -11,6 +11,10 @@ set(OCC_INCLUDE_DIR "${OCC_INSTALL_DIR}/inc")
 set(OCC_LIB_DIR "${OCC_INSTALL_DIR}/win64/vc14/libd")
 set(OCC_BIN_DIR "${OCC_INSTALL_DIR}/win64/vc14/bind")
 
+# Находим Qt5 для всех подкаталогов
+find_package(Qt6 COMPONENTS Widgets REQUIRED)
+
 # Добавляем подкаталоги
 add_subdirectory(Lib)
 add_subdirectory(Console)
+add_subdirectory(Gui)
