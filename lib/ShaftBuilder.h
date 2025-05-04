@@ -267,7 +267,9 @@ public:
      * @brief Получить итоговую форму вала
      * @return Итоговая форма вала
      */
-    TopoDS_Shape getFinalShape() const { return finalShape; }
+    const TopoDS_Shape& getFinalShape() const {
+        return finalShape;
+    }
     /**
  * @brief Уменьшить диаметр цилиндра с указанным индексом
  * @param index Индекс цилиндра в массиве сегментов

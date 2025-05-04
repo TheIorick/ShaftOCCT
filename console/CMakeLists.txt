@@ -1,9 +1,7 @@
-# Создаём исполняемый файл
-add_executable(Console
-    ShaftApplication.cpp
-)
+# Создаем консольное приложение
+add_executable(Console ShaftApplication.cpp ShaftApplication.h)
 
-# Линкуем с библиотекой Lib
+# Подключаем библиотеку
 target_link_libraries(Console PRIVATE Lib)
 
 # Копирование DLL в выходную папку
