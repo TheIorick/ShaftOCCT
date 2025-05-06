@@ -1,22 +1,34 @@
-# Создаём интерфейсную библиотеку для заголовков
-add_library(Lib INTERFACE)
+# Минимальная версия CMake
+cmake_minimum_required(VERSION 3.16)
 
-# Указываем заголовочные файлы
-target_sources(Lib PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/ShaftBuilder.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/ShaftProportions.h
+# Установка стандарта C++
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Файлы библиотеки
+set(LIB_SOURCES
+    ShaftBuilder.h
+    ShaftProportions.h
+    ShaftAppCore.cpp
+    ShaftAppCore.h
 )
 
-# Указываем пути к заголовкам
-target_include_directories(Lib INTERFACE
+# Создаём статическую библиотеку
+add_library(Lib STATIC ${LIB_SOURCES}
+    Slot.h)
+
+# Указываем пути к заголовкам библиотеки
+target_include_directories(Lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # Подключение заголовков OpenCASCADE
-target_include_directories(Lib INTERFACE ${OCC_INCLUDE_DIR})
+target_include_directories(Lib PUBLIC
+    ${OCC_INCLUDE_DIR}
+)
 
-# Линковка библиотек OpenCASCADE (передаём зависимости через INTERFACE)
-target_link_libraries(Lib INTERFACE
+# Линковка библиотек OpenCASCADE
+target_link_libraries(Lib PUBLIC
     "${OCC_LIB_DIR}/TKernel.lib"
     "${OCC_LIB_DIR}/TKBO.lib"
     "${OCC_LIB_DIR}/TKMesh.lib"

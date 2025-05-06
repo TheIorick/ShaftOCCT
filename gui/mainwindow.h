@@ -1,14 +1,27 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef MAIN_WINDOW_H
+#define MAIN_WINDOW_H
 
 #include <QMainWindow>
+#include "../lib/ShaftAppCore.h"
+
+class QLineEdit;
+class QPushButton;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
     MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+
+private slots:
+    void onBuildButtonClicked();
+
+private:
+    ShaftAppCore core;
+    QLineEdit *totalLengthEdit;
+    QLineEdit *cylinder4DiameterEdit;
+    QLineEdit *cylinder9DiameterEdit;
+    QPushButton *buildButton;
 };
 
-#endif // MAINWINDOW_H
+#endif // MAIN_WINDOW_H
