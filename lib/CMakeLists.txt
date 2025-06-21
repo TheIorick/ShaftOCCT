@@ -1,10 +1,6 @@
 # Минимальная версия CMake
 cmake_minimum_required(VERSION 3.16)
 
-# Установка стандарта C++
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 # Файлы библиотеки
 set(LIB_SOURCES
     ShaftBuilder.h

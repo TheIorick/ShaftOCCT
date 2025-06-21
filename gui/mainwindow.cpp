@@ -46,10 +46,18 @@ void MainWindow::onBuildButtonClicked() {
         QMessageBox::critical(this, "Error", "Invalid total length. Must be a positive number.");
         return;
     }
+    if (totalLength <= 200 || totalLength >= 300) {
+        QMessageBox::critical(this, "Error", "Total length must be between 200 mm and 300 mm.");
+        return;
+    }
 
     double cylinder4Diameter = cylinder4DiameterEdit->text().toDouble(&ok);
     if (!ok || cylinder4Diameter <= 0) {
         QMessageBox::critical(this, "Error", "Invalid diameter for cylinder 4. Must be a positive number.");
+        return;
+    }
+    if (cylinder4Diameter <= 20 || cylinder4Diameter >= 35) {
+        QMessageBox::critical(this, "Error", "Cylinder 4 diameter must be between 20 mm and 35 mm.");
         return;
     }
 
@@ -58,10 +66,14 @@ void MainWindow::onBuildButtonClicked() {
         QMessageBox::critical(this, "Error", "Invalid diameter for cylinder 9. Must be a positive number.");
         return;
     }
+    if (cylinder9Diameter <= 20 || cylinder9Diameter >= 35) {
+        QMessageBox::critical(this, "Error", "Cylinder 9 diameter must be between 20 mm and 35 mm.");
+        return;
+    }
 
     // Установка параметров
     core.setTotalLength(totalLength);
-    core.setSegmentDiameter(4, cylinder4Diameter);
+    core.setSegmentDiameter(3, cylinder4Diameter);
     core.setSegmentDiameter(9, cylinder9Diameter);
 
     // Запрос пути для сохранения файла

@@ -38,13 +38,13 @@ struct SlotProportion {
     double width;
     double depth;
     double length;
-    double positionRatio;
+    double offsetFromSegmentStart;
     int segmentIndex;
 
     SlotProportion(double width, double depth, double length,
-                   double positionRatio, int segmentIndex)
+                   double offsetFromSegmentStart, int segmentIndex)
         : width(width), depth(depth), length(length),
-        positionRatio(positionRatio), segmentIndex(segmentIndex) {}
+        offsetFromSegmentStart(offsetFromSegmentStart), segmentIndex(segmentIndex) {}
 };
 
 class ShaftProportions {
@@ -62,7 +62,7 @@ public:
         : totalLength(totalLength), baseDiameter(23.0), chamferLengthRatio(0.025 / 23.0) {
         initDefaultProportions();
         customDiameters[3] = cylinder4Diameter;
-        customDiameters[8] = cylinder9Diameter;
+        customDiameters[9] = cylinder9Diameter;
         recalculateProportions();
         initDefaultSlotProportions();
     }
@@ -89,9 +89,10 @@ public:
         if (segmentIndex < 0 || segmentIndex >= proportions.size()) {
             throw std::out_of_range("Segment index out of valid range");
         }
-        if (diameter <= 0) throw std::invalid_argument("Diameter must be a positive number");
+        if (diameter <= 20.0) throw std::invalid_argument("Diameter must be a positive number");
+        if (diameter > 35.0) throw std::invalid_argument("Diameter cannot exceed 50 mm");
         customDiameters[segmentIndex] = diameter;
-        if (segmentIndex == 3 || segmentIndex == 8) recalculateProportions();
+        if (segmentIndex == 3 || segmentIndex == 9) recalculateProportions();
     }
 
     void recalculateProportions() {
@@ -112,13 +113,13 @@ public:
             std::cout << "Recalculating proportions based on the 4th cylinder diameter: "
                       << "new base diameter = " << baseDiameter
                       << ", scaling factor = " << scaleFactor << std::endl;
-        } else if (customDiameters.find(8) != customDiameters.end()) {
-            double cylinder9Diameter = customDiameters[8];
+        } else if (customDiameters.find(9) != customDiameters.end()) {
+            double cylinder9Diameter = customDiameters[9];
             if (cylinder9Diameter <= 0) {
                 std::cerr << "Error: 9th cylinder diameter cannot be zero or negative" << std::endl;
                 return;
             }
-            double ratio = proportions[8].diameterRatio;
+            double ratio = proportions[9].diameterRatio;
             if (ratio <= 0) {
                 std::cerr << "Error: Diameter ratio for the 9th cylinder cannot be zero or negative" << std::endl;
                 return;
@@ -162,16 +163,8 @@ public:
 
     void initDefaultSlotProportions() {
         slotProportions.clear();
-        totalLengthRatio = 0.0;
-        for (const auto& prop : proportions) totalLengthRatio += prop.lengthRatio;
-        double length1Sum = 0.0;
-        for (int i = 0; i < 3; i++) length1Sum += proportions[i].lengthRatio;
-        double position1Ratio = (length1Sum + (44.5 - 36.0) / totalLength) / totalLengthRatio;
-        slotProportions.push_back(SlotProportion(8.0, 5.0, 10.0, position1Ratio, 3));
-        double length2Sum = 0.0;
-        for (int i = 0; i < 8; i++) length2Sum += proportions[i].lengthRatio;
-        double position2Ratio = (length2Sum + (133.0 - 125.0) / totalLength) / totalLengthRatio;
-        slotProportions.push_back(SlotProportion(8.0, 4.0, 22.0, position2Ratio, 8));
+        slotProportions.push_back(SlotProportion(8.0, 5.0, 10.0, 8.5, 3));
+        slotProportions.push_back(SlotProportion(8.0, 4.0, 22.0, 8.0, 9));
     }
 
     size_t getSlotCount() const { return slotProportions.size(); }
@@ -179,17 +172,18 @@ public:
     std::tuple<double, double, double, double, int> getSlotInfo(size_t index) const {
         if (index >= slotProportions.size()) throw std::out_of_range("Slot index out of valid range");
         const auto& slot = slotProportions[index];
-        double position = slot.positionRatio * totalLength;
+        double offset = slot.offsetFromSegmentStart;
         double scaledWidth = slot.width * (baseDiameter / 23.0);
         double scaledDepth = slot.depth * (baseDiameter / 23.0);
         double scaledLength = slot.length * (baseDiameter / 23.0);
-        return std::make_tuple(scaledWidth, scaledDepth, scaledLength, position, slot.segmentIndex);
+        return std::make_tuple(scaledWidth, scaledDepth, scaledLength, offset, slot.segmentIndex);
     }
 
     double getTotalLength() const { return totalLength; }
 
     void setTotalLength(double length) {
-        if (length <= 0) throw std::invalid_argument("Total shaft length must be positive");
+        if (length <= 20) throw std::invalid_argument("Total shaft length must be positive");
+        if (length > 300.0) throw std::invalid_argument("Total shaft length cannot exceed 300 mm");
         totalLength = length;
         initDefaultSlotProportions();
     }

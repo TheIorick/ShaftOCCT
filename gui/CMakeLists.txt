@@ -4,10 +4,6 @@ cmake_minimum_required(VERSION 3.10)
 # Название проекта
 project(Gui LANGUAGES CXX)
 
-# Установка стандарта C++
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 # Поиск Qt
 find_package(Qt6 COMPONENTS Widgets REQUIRED)
 
@@ -30,7 +26,7 @@ add_executable(Gui ${GUI_SOURCES})
 # Линковка с библиотекой Lib и Qt
 target_link_libraries(Gui PRIVATE Lib Qt::Widgets)
 
-# Копирование DLL (если нужно, аналогично консольному приложению)
+
 add_custom_command(TARGET Gui POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${OCC_BIN_DIR}"

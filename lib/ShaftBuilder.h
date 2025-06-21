@@ -29,6 +29,7 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <Standard_DefineAlloc.hxx>
 
 #include "Slot.h"  // Подключаем класс Slot
 #include "ShaftProportions.h"
@@ -100,7 +101,7 @@ public:
  */
 class ShaftBuilder {
 private:
-    std::vector<Slot> slots;                             // Пазы на валу
+    std::vector<Slot> m_slots;                             // Пазы на валу
     std::vector<std::unique_ptr<ShaftSegment>> segments; // Сегменты вала
     Standard_Real chamferLength;                         // Длина фаски
     Standard_Real chamferAngle;                          // Угол фаски в градусах
@@ -151,7 +152,7 @@ public:
 
     void addSlot(Standard_Real width, Standard_Real depth, Standard_Real length,
                  Standard_Real zStart, Standard_Real cylinderRadius) {
-        slots.push_back(Slot(width, depth, length, zStart, cylinderRadius));
+        m_slots.push_back(Slot(width, depth, length, zStart, cylinderRadius));
         std::cout << "Slot added (Z=" << zStart << " to " << zStart + length
                   << ", width=" << width << ", depth=" << depth << ")" << std::endl;
     }
@@ -186,7 +187,7 @@ public:
     void buildFromProportions(const ShaftProportions& proportions) {
         currentZCoord = 0.0;
         segments.clear();
-        slots.clear();
+        m_slots.clear();
         size_t segmentCount = proportions.getSegmentCount();
         double chamferLength = proportions.getChamferLength();
         this->chamferLength = chamferLength;
@@ -220,15 +221,33 @@ public:
             double width = std::get<0>(slotInfo);
             double depth = std::get<1>(slotInfo);
             double length = std::get<2>(slotInfo);
-            double position = std::get<3>(slotInfo);
+            double offset = std::get<3>(slotInfo); // This is the offset from segment start
             size_t segmentIndex = std::get<4>(slotInfo);
 
             double segmentDiameter = proportions.getSegmentDiameter(segmentIndex);
+
+            // Calculate the actual zStart for the slot
+            Standard_Real segmentZStart = segments[segmentIndex]->getZStart();
+            Standard_Real segmentLength = segments[segmentIndex]->getLength();
+            Standard_Real segmentZEnd = segmentZStart + segmentLength;
+
+            Standard_Real slotZStart = segmentZStart + offset;
+
+            // Убедиться, что паз не выходит за пределы сегмента
+            Standard_Real slotZEnd = slotZStart + length;
+            if (slotZEnd > segmentZEnd) {
+                length = segmentZEnd - slotZStart; // Укорачиваем паз
+                if (length < 0) length = 0; // Если паз полностью выходит за пределы, его длина становится 0
+                std::cout << "Slot length adjusted to " << length << " due to segment boundary." << std::endl;
+            }
+
             std::cout << "Adding slot " << i << " on segment " << segmentIndex
                       << ": width=" << width << ", depth=" << depth
-                      << ", length=" << length << ", position=" << position
+                      << ", length=" << length << ", position (offset from segment start)=" << offset
+                      << ", segment actual zStart=" << segmentZStart
+                      << ", slot actual zStart=" << slotZStart
                       << ", cylinder diameter=" << segmentDiameter << std::endl;
-            addSlot(width, depth, length, position, segmentDiameter / 2.0);
+            addSlot(width, depth, length, slotZStart, segmentDiameter / 2.0);
         }
     }
 
@@ -282,10 +301,10 @@ private:
     }
 
     void cutSlots() {
-        for (size_t i = 0; i < slots.size(); ++i) {
+        for (size_t i = 0; i < m_slots.size(); ++i) {
             try {
                 // Создаем форму паза
-                TopoDS_Shape slotShape = slots[i].create();
+                TopoDS_Shape slotShape = m_slots[i].create();
                 // Вырезаем паз из вала
                 BRepAlgoAPI_Cut cut(finalShape, slotShape);
                 if (!cut.IsDone()) {

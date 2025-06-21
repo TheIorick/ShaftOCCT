@@ -46,22 +46,22 @@ int main(int argc, char *argv[]) {
     if (argc == 1) {
         std::cout << "Enter the total length of the shaft (mm): ";
         std::cin >> totalLength;
-        if (totalLength <= 0) {
-            std::cerr << "Error: The shaft length must be a positive number" << std::endl;
+        if (totalLength <= 200 || totalLength >= 300) {
+            std::cerr << "Error: Total length must be between 200 mm and 300 mm." << std::endl;
             return 1;
         }
 
         std::cout << "Enter the diameter of the 4th cylinder (mm): ";
         std::cin >> cylinder4Diameter;
-        if (cylinder4Diameter <= 0) {
-            std::cerr << "Error: The diameter of the 4th cylinder must be a positive number" << std::endl;
+        if (cylinder4Diameter <= 20 || cylinder4Diameter >= 35) {
+            std::cerr << "Error: Cylinder 4 diameter must be between 20 mm and 35 mm." << std::endl;
             return 1;
         }
 
         std::cout << "Enter the diameter of the 9th cylinder (mm): ";
         std::cin >> cylinder9Diameter;
-        if (cylinder9Diameter <= 0) {
-            std::cerr << "Error: The diameter of the 9th cylinder must be a positive number" << std::endl;
+        if (cylinder9Diameter <= 20 || cylinder9Diameter >= 35) {
+            std::cerr << "Error: Cylinder 9 diameter must be between 20 mm and 35 mm." << std::endl;
             return 1;
         }
     } else {
@@ -69,8 +69,10 @@ int main(int argc, char *argv[]) {
         if (argc > 2) cylinder4Diameter = std::stod(argv[2]);
         if (argc > 3) cylinder9Diameter = std::stod(argv[3]);
 
-        if (totalLength <= 0 || cylinder4Diameter <= 0 || cylinder9Diameter <= 0) {
-            std::cerr << "Error: All parameters must be positive numbers" << std::endl;
+        if (totalLength <= 200 || totalLength >= 300 ||
+            cylinder4Diameter <= 20 || cylinder4Diameter >= 35 ||
+            cylinder9Diameter <= 20 || cylinder9Diameter >= 35) {
+            std::cerr << "Error: All parameters must be within the valid range (length 200-300mm, diameters 20-35mm)." << std::endl;
             return 1;
         }
     }

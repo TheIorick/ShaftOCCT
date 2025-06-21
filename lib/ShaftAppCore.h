@@ -4,6 +4,7 @@
 #include "ShaftBuilder.h"
 #include "ShaftProportions.h"
 #include <string>
+#include <Standard_TypeDef.hxx>
 
 /**
  * @class ShaftAppCore
@@ -13,6 +14,7 @@ class ShaftAppCore {
 private:
     ShaftBuilder builder;
     ShaftProportions proportions;
+    bool m_hasConfigurationErrors;
 
 public:
     /**
@@ -49,6 +51,11 @@ public:
      * @param length Общая длина вала
      */
     void setTotalLength(double length);
+
+    /**
+     * @brief Сбрасывает флаг ошибок конфигурации
+     */
+    void resetConfigurationErrors();
 };
 
 #endif // SHAFT_APP_CORE_H
